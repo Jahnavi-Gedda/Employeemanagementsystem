@@ -1,0 +1,253 @@
+import java.util.ArrayList;
+import java.util.Date;
+import java.text.SimpleDateFormat;
+import java.text.ParseException;
+import java.util.List;
+import java.util.Scanner;
+import java.util.Arrays;
+import java.util.Collections;
+public class EmployeeManagement{
+    static class Employee{
+        String firstName;
+        String lastName;
+        String dateOfBirth;
+        String title;
+        Date startDate;
+        Date endDate;
+        String KerberosId;
+        public String getFirstName() {
+            return firstName;
+        }
+        public void setFirstName(String firstName){
+            this.firstName= firstName;
+        }
+        public String getLastName() {
+            return lastName;
+        }
+        public void setLastName(String lastName) {
+            this.lastName= lastName;
+        }
+        public String getDateOfBirth() {
+            return dateOfBirth;
+        }
+        public void setDateOfBirth(String dateOfBirth){
+            this.dateOfBirth= dateOfBirth;
+        }
+        public String getTitle() {
+            return title;
+        }
+        public void setTitle(String title) {
+            this.title= title;
+        } 
+        public Date getStartDate() {
+            return startDate;
+        }
+        public void setStartDate(Date startDate) {
+            this.startDate= startDate;
+        } public Date getEndDate() {
+            return endDate;
+        } public void setEndDate(Date endDate) {
+            this.endDate= endDate;
+        } 
+        public void setKerberosId(String Kerberos){
+            this.KerberosId = Kerberos;
+        }
+        public String getKerberosId(){
+            return KerberosId;
+        }
+        
+    }
+    List<Employee>employees;
+    EmployeeManagement() {
+        employees = new ArrayList<Employee>();
+    }
+    static void addEmployeeInput(Employee e) {
+        // Code for user prompt to input the required values
+        Scanner sc = new Scanner(System.in);
+        System.out.println("enter Employee First Name : ");
+        String FirstName = sc.nextLine();
+        e.setFirstName(FirstName);
+        
+        System.out.println("enter Employee Last Name : ");
+        String LastName = sc.nextLine();
+        e.setLastName(LastName);
+
+        System.out.println("Enter Date of birth in DD/MM/YYYY format : ");
+        String dob = sc.nextLine();
+        e.setDateOfBirth(dob);
+
+        System.out.println("enter Employee Title : ");
+        String Title = sc.nextLine();
+        e.setTitle(Title.toLowerCase());
+
+        Date currentDate = new Date();
+        e.setStartDate(currentDate);
+
+        Date InfiDate = new Date(Long.MAX_VALUE);
+        e.setEndDate(InfiDate);
+    }
+    static String shuffleString(String str, EmployeeManagement em){
+  		List<String> characters = Arrays.asList(str.split(""));
+ 		Collections.shuffle(characters);
+  		String afterShuffle = "";
+  		for (String character : characters)
+        {
+    		afterShuffle += character;
+  		}
+        // If Kerberos ID is found
+        if(searchKerberos(em.employees, afterShuffle) != -1){
+            shuffleString(afterShuffle, em);
+        }
+        System.out.println("afterShuffle : " + afterShuffle);
+        return afterShuffle;
+    }
+    static int searchKerberos(List employees, String kerberos){
+        // This will return index of Employee if Kerberos is found
+        int i;
+        for(i=0; i < employees.size(); i++){
+            if(((EmployeeManagement.Employee) employees.get(i)).getKerberosId().equals(kerberos)){
+                return i;
+            }
+        }
+        return -1;
+    }
+    static void printEmployee(Employee empObject){
+        System.out.println("First Name : " + empObject.getFirstName());
+        System.out.println("Last Name : " + empObject.getLastName());
+        System.out.println("Date Of Birth : " + empObject.getDateOfBirth());
+        System.out.println("Title : " + empObject.getTitle());
+        System.out.println("Start Date : " + empObject.getStartDate());
+        System.out.println("End Date : " + empObject.getEndDate());
+        System.out.println("Kerberos ID : " + empObject.getKerberosId());
+    }
+
+    static void printALLEmployee(EmployeeManagement em){
+        for(int i =0; i < em.employees.size(); i++){
+            System.out.println("\n --------- Employee  " + (i+1) + "  ------------\n");
+            System.out.println("First Name : " + em.employees.get(i).getFirstName());
+            System.out.println("Last Name : " + em.employees.get(i).getLastName());
+            System.out.println("Date Of Birth : " + em.employees.get(i).getDateOfBirth());
+            System.out.println("Title : " + em.employees.get(i).getTitle());
+            System.out.println("Start Date : " + em.employees.get(i).getStartDate());
+            System.out.println("End Date : " + em.employees.get(i).getEndDate());
+            System.out.println("Kerberos ID : " + em.employees.get(i).getKerberosId());
+        }
+    }
+    static void addEmployee(Employee e, EmployeeManagement em) {
+        // Code to add employee in system
+        // Generate Kerberos ID
+        char FirstNameChars[] = new char[2];
+        e.getFirstName().getChars(0, 2, FirstNameChars, 0);
+        String tempID = e.getLastName() + String.valueOf(FirstNameChars);
+        tempID = tempID.toLowerCase();
+        if(searchKerberos(em.employees, tempID) != -1){
+            tempID = shuffleString(tempID, em);
+        }
+        e.setKerberosId(tempID);
+        System.out.println("Kerberos ID : " + tempID);
+        em.employees.add(e);
+    }
+    static void filter(int filterChoice, EmployeeManagement em) {
+        //Code to filter employees based on selectedfilter
+        Scanner sc = new Scanner(System.in);
+        if(filterChoice == 1){
+            SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
+            System.out.println("Enter date in (DD/MM/YYYY) formate : ");
+            String dateInString = sc.nextLine();
+            Date enteredDate = new Date();
+            try {
+                enteredDate = formatter.parse(dateInString);
+                //System.out.println(enteredDate);
+                //System.out.println(formatter.format(enteredDate));
+            }catch (ParseException e) {
+                e.printStackTrace();
+            }
+
+            // Find the employees
+            for(int i = 0; i < em.employees.size(); i++){
+                if(em.employees.get(i).getEndDate().after(enteredDate)){
+                    System.out.println(em.employees.get(i).getFirstName() + " " + em.employees.get(i).getLastName() + "\t" + em.employees.get(i).getKerberosId());
+                }
+            }
+        }
+        else{
+            System.out.println("Enter title : ");
+            String title = sc.nextLine();
+            for(int i = 0; i < em.employees.size(); i++){
+                if(em.employees.get(i).getTitle().equals(title)){
+                    System.out.println(em.employees.get(i).getFirstName() + " " + em.employees.get(i).getLastName() + "\t" + em.employees.get(i).getKerberosId());
+                }
+            }
+        }
+    }
+    static void searchEmployee(String kerberos, EmployeeManagement em) {
+        //Code to search the employee with given kerberos
+        int IndexOfEmployee = searchKerberos(em.employees, kerberos);
+        if(IndexOfEmployee == -1){
+            System.out.println("Employee not found");
+        }
+        else{
+            printEmployee(em.employees.get(IndexOfEmployee));
+        }
+
+    }
+    static void terminate(String kerberos, EmployeeManagement em) {
+        //Code to terminate the employee with givenkerberos
+        int IndexOfEmployee = searchKerberos(em.employees, kerberos);
+        if(IndexOfEmployee == -1){
+            System.out.println("Employee not found");
+        }
+        else{
+            em.employees.get(IndexOfEmployee).setEndDate(new Date());
+            printEmployee(em.employees.get(IndexOfEmployee));
+        }
+    }
+    public static void main(String[] args) {
+        EmployeeManagement employeeManagement =new EmployeeManagement();
+        Scanner sc =new Scanner(System.in);
+        System.out.println("\n------------------EmployeeManagement----------------------\n");
+        mainloop : while (true) {
+            System.out.println("Press 1 to Add an Employee\n");
+            System.out.println("Press 2 to Search an Employee\n");
+            System.out.println("Press 3 to Filter Employees\n");
+            System.out.println("Press 4 to Terminate anEmployee\n");
+            System.out.println("Press 5 to print all employees \n");
+            System.out.println("Press 6 to Exit\n");
+            int choice=sc.nextInt();
+            switch(choice) {
+                case 1:
+                    Employee e=new Employee();
+                    addEmployeeInput(e);
+                    addEmployee(e, employeeManagement);
+                    break;
+                case 2:
+                    //sc.next();
+                    System.out.println("Enter a kerberos id to search: ");
+                    String kerberos=sc.next();
+                    searchEmployee(kerberos, employeeManagement);
+                    break;
+                case 3:
+                    System.out.println("Press 1 to filterby isActive as of adate");
+                    System.out.println("Press 2 to filterby title");
+                    int filterChoice=sc.nextInt();
+                    filter(filterChoice, employeeManagement);
+                    break;
+                case 4:
+                    System.out.println("Enter a kerberosid to terminate: ");
+                    kerberos = sc.next();
+                    terminate(kerberos, employeeManagement);
+                    break;
+                case 5:
+                    printALLEmployee(employeeManagement);
+                    sc.nextLine();  // To remove \n at the end in the input buffer
+                    break;
+                case 6:
+                    System.out.println("-------------------- Exited --------------------\n");
+                    break mainloop;
+                default:
+                    System.out.println("Please select avalid choice");
+                    break;
+            }
+        }
+    }
+}
